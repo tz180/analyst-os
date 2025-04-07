@@ -14,11 +14,9 @@ const DailyCheckIn = () => {
   const [checkIns, setCheckIns] = useLocalStorage('checkIns', {});
   const [momentum, setMomentum] = useLocalStorage('momentum', []);
 
-  const todayCheckIn = checkIns[today] || { morning: '', evening: '', rating: 0 };
-
-  const [morning, setMorning] = useState(todayCheckIn.morning);
-  const [evening, setEvening] = useState(todayCheckIn.evening);
-  const [rating, setRating] = useState(todayCheckIn.rating);
+  const [morning, setMorning] = useState('');
+  const [evening, setEvening] = useState('');
+  const [rating, setRating] = useState(0);
   const [saved, setSaved] = useState(false);
 
   if (!hasMounted) return null;
