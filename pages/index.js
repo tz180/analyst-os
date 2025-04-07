@@ -3,6 +3,8 @@ import PipelineManager from '../components/PipelineManager';
 import Dashboard from '../components/Dashboard';
 import DailyCheckIn from '../components/DailyCheckIn';
 import MemoTracker from '../components/MemoTracker';
+import MomentumLog from '../components/MomentumLog';
+
 
 
 
