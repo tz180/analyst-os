@@ -1,48 +1,83 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 
+function useHasMounted() {
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => setHasMounted(true), []);
+  return hasMounted;
+}
+
 const MomentumLog = () => {
+  const hasMounted = useHasMounted();
   const [checkIns] = useLocalStorage('checkIns', {});
   const [momentum] = useLocalStorage('momentum', []);
 
-  const dates = Object.keys({ ...checkIns, ...momentum })
-    .sort((a, b) => new Date(b) - new Date(a));
+  if (!hasMounted) return null;
 
-  const getDailyLog = (date) => {
-    const c = checkIns[date] || {};
-    const wins = momentum.filter(m => m.date.startsWith(date));
-    return { date, ...c, wins };
-  };
-
-  const logEntries = dates.map(getDailyLog);
+  // Combine and sort entries by day (descending)
+  const allDates = Array.from(
+    new Set([
+      ...Object.keys(checkIns),
+      ...momentum.map((m) => m.date.split('T')[0])
+    ])
+  ).sort((a, b) => new Date(b) - new Date(a));
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Momentum Log</h2>
-      <div className="space-y-4">
-        {logEntries.map((log, i) => (
-          <div key={i} className="border rounded p-4 bg-white shadow">
-            <h3 className="text-lg font-semibold mb-1">{new Date(log.date).toDateString()}</h3>
-            {log.wins.length > 0 && (
-              <div className="mb-2">
-                <strong>Wins:</strong>
-                <ul className="list-disc ml-5">
-                  {log.wins.map((w, i) => <li key={i}>{w.summary}</li>)}
-                </ul>
+    <div className="bg-white border shadow-md rounded-xl p-6 space-y-6">
+      <h2 className="text-2xl font-bold text-gray-800">📘 Momentum Log</h2>
+
+      {allDates.length === 0 ? (
+        <p className="text-gray-500 italic">No entries yet — start building your streak today.</p>
+      ) : (
+        <div className="space-y-4">
+          {allDates.map((date, idx) => {
+            const checkIn = checkIns[date];
+            const dailyWins = momentum.filter((m) => m.date.startsWith(date));
+
+            return (
+              <div
+                key={idx}
+                className="border rounded-lg p-4 bg-gray-50 shadow-sm space-y-2"
+              >
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {new Date(date).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                </h3>
+
+                {dailyWins.length > 0 && (
+                  <div>
+                    <strong>🏆 Wins:</strong>
+                    <ul className="list-disc ml-6 text-sm text-gray-700">
+                      {dailyWins.map((win, i) => (
+                        <li key={i}>{win.summary}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {checkIn?.morning && (
+                  <div>
+                    <strong>🌅 Morning:</strong>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{checkIn.morning}</p>
+                  </div>
+                )}
+
+                {checkIn?.evening && (
+                  <div>
+                    <strong>🌇 Evening:</strong>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{checkIn.evening}</p>
+                  </div>
+                )}
+
+                {checkIn?.rating && (
+                  <div className="text-sm text-gray-500">
+                    Discipline Rating: <strong>{checkIn.rating}/5</strong>
+                  </div>
+                )}
               </div>
-            )}
-            {log.morning && (
-              <div className="mb-1"><strong>Morning:</strong> {log.morning}</div>
-            )}
-            {log.evening && (
-              <div className="mb-1"><strong>Evening:</strong> {log.evening}</div>
-            )}
-            {log.rating && (
-              <div><strong>Discipline Rating:</strong> {log.rating}/5</div>
-            )}
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
