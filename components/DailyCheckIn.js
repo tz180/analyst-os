@@ -10,7 +10,10 @@ function useHasMounted() {
 const DailyCheckIn = () => {
   const hasMounted = useHasMounted();
   const today = new Date().toISOString().split('T')[0];
+
   const [checkIns, setCheckIns] = useLocalStorage('checkIns', {});
+  const [momentum, setMomentum] = useLocalStorage('momentum', []);
+
   const todayCheckIn = checkIns[today] || { morning: '', evening: '', rating: 0 };
 
   const [morning, setMorning] = useState(todayCheckIn.morning);
@@ -21,13 +24,26 @@ const DailyCheckIn = () => {
   if (!hasMounted) return null;
 
   const saveCheckIn = () => {
+    // 1. Save to checkIns
     const updated = {
       ...checkIns,
       [today]: { morning, evening, rating },
     };
     setCheckIns(updated);
+
+    // 2. Add to momentum log
+    const momentumEntry = {
+      date: new Date().toISOString(),
+      summary: `✅ Daily check-in completed (Discipline: ${rating}/5)`
+    };
+    setMomentum([...momentum, momentumEntry]);
+
+    // 3. Show confirmation and clear fields
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+    setMorning('');
+    setEvening('');
+    setRating(0);
   };
 
   return (
