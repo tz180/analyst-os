@@ -7,7 +7,7 @@ function useHasMounted() {
   return hasMounted;
 }
 
-const REASONS = ['Valuation', 'Management', 'Outlook', 'Competition', 'Not a Fit'];
+const PASS_REASONS = ['Valuation', 'Management', 'Outlook', 'Competition', 'Not a Fit'];
 
 const CoverageTracker = () => {
   const hasMounted = useHasMounted();
@@ -26,8 +26,8 @@ const CoverageTracker = () => {
         name: newCompany,
         lastModelUpdate: today,
         lastMemoDate: today,
-        status: 'Pipeline'
-      }
+        status: 'Pipeline',
+      },
     ]);
     setNewCompany('');
   };
@@ -45,124 +45,137 @@ const CoverageTracker = () => {
       {
         name: removed.name,
         reason,
-        date: new Date().toISOString().split('T')[0]
-      }
+        date: new Date().toISOString().split('T')[0],
+      },
     ]);
     const remaining = companies.filter((_, i) => i !== index);
     setCompanies(remaining);
   };
 
-  const calculateDaysSince = (dateStr) => {
+  const daysSince = (dateStr) => {
     const now = new Date();
-    const past = new Date(dateStr);
-    return Math.floor((now - past) / (1000 * 60 * 60 * 24));
+    const then = new Date(dateStr);
+    return Math.floor((now - then) / (1000 * 60 * 60 * 24));
   };
 
   return (
-    <div className="bg-white border shadow-md rounded-xl p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">📊 Coverage Tracker</h2>
+    <div className="space-y-6">
+      {/* Section Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-800">📊 Coverage Tracker</h2>
+      </div>
 
-      <div className="flex items-center gap-2">
+      {/* Add Company */}
+      <div className="flex gap-2 items-center">
         <input
-          className="border border-gray-300 px-4 py-2 rounded w-full max-w-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Add company..."
+          type="text"
+          placeholder="Add new company..."
+          className="border border-gray-300 px-4 py-2 rounded-md w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={newCompany}
           onChange={(e) => setNewCompany(e.target.value)}
         />
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           onClick={addCompany}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
         >
           Add
         </button>
       </div>
 
-      <table className="w-full table-auto border-collapse text-sm">
-        <thead>
-          <tr className="bg-gray-100 text-gray-600 text-left">
-            <th className="border-b px-4 py-2">Company</th>
-            <th className="border-b px-4 py-2">Last Model Update</th>
-            <th className="border-b px-4 py-2">Last Memo Date</th>
-            <th className="border-b px-4 py-2">Status</th>
-            <th className="border-b px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {companies.map((c, i) => {
-            const modelStale = calculateDaysSince(c.lastModelUpdate) > 90;
-            return (
-              <tr key={i} className={modelStale ? 'bg-red-50' : 'hover:bg-gray-50'}>
-                <td className="border-b px-4 py-2">{c.name}</td>
-                <td className="border-b px-4 py-2">
-                  <input
-                    type="date"
-                    className="border rounded px-2 py-1"
-                    value={c.lastModelUpdate}
-                    onChange={(e) => updateField(i, 'lastModelUpdate', e.target.value)}
-                  />
-                </td>
-                <td className="border-b px-4 py-2">
-                  <input
-                    type="date"
-                    className="border rounded px-2 py-1"
-                    value={c.lastMemoDate}
-                    onChange={(e) => updateField(i, 'lastMemoDate', e.target.value)}
-                  />
-                </td>
-                <td className="border-b px-4 py-2">{c.status}</td>
-                <td className="border-b px-4 py-2 space-y-1 space-x-1">
-                  <button
-                    className="text-green-600 hover:underline"
-                    onClick={() => updateField(i, 'status', 'Active')}
-                  >
-                    Active
-                  </button>
-                  <button
-                    className="text-yellow-600 hover:underline"
-                    onClick={() => updateField(i, 'status', 'Pipeline')}
-                  >
-                    Pipeline
-                  </button>
-                  <select
-                    className="border text-gray-600 px-1 py-1 rounded"
-                    onChange={(e) => dropCompany(i, e.target.value)}
-                    defaultValue=""
-                  >
-                    <option disabled value="">
-                      Drop ⬇
-                    </option>
-                    {REASONS.map((r, idx) => (
-                      <option key={idx} value={r}>{r}</option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-
-      {passList.length > 0 && (
-        <div className="pt-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">📁 Passed List</h3>
-          <table className="w-full table-auto border-collapse text-sm">
-            <thead>
-              <tr className="bg-gray-100 text-gray-600 text-left">
-                <th className="border-b px-4 py-2">Company</th>
-                <th className="border-b px-4 py-2">Reason</th>
-                <th className="border-b px-4 py-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {passList.map((p, i) => (
-                <tr key={i}>
-                  <td className="border-b px-4 py-2">{p.name}</td>
-                  <td className="border-b px-4 py-2">{p.reason}</td>
-                  <td className="border-b px-4 py-2">{p.date}</td>
+      {/* Active Coverage Table */}
+      <div className="overflow-x-auto bg-white rounded-xl shadow border">
+        <table className="min-w-full table-auto text-sm">
+          <thead className="bg-gray-50 border-b text-gray-600 text-left">
+            <tr>
+              <th className="px-4 py-2">Company</th>
+              <th className="px-4 py-2">Model Update</th>
+              <th className="px-4 py-2">Memo Date</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {companies.map((c, i) => {
+              const stale = daysSince(c.lastModelUpdate) > 90;
+              return (
+                <tr key={i} className={stale ? 'bg-red-50' : 'hover:bg-gray-50'}>
+                  <td className="px-4 py-2 border-b font-medium">{c.name}</td>
+                  <td className="px-4 py-2 border-b">
+                    <input
+                      type="date"
+                      value={c.lastModelUpdate}
+                      className="border rounded px-2 py-1 w-full max-w-[140px]"
+                      onChange={(e) => updateField(i, 'lastModelUpdate', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-4 py-2 border-b">
+                    <input
+                      type="date"
+                      value={c.lastMemoDate}
+                      className="border rounded px-2 py-1 w-full max-w-[140px]"
+                      onChange={(e) => updateField(i, 'lastMemoDate', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-4 py-2 border-b text-sm">{c.status}</td>
+                  <td className="px-4 py-2 border-b space-x-1">
+                    <button
+                      onClick={() => updateField(i, 'status', 'Active')}
+                      className="text-green-600 hover:underline"
+                    >
+                      Active
+                    </button>
+                    <button
+                      onClick={() => updateField(i, 'status', 'Pipeline')}
+                      className="text-yellow-600 hover:underline"
+                    >
+                      Pipeline
+                    </button>
+                    <select
+                      defaultValue=""
+                      onChange={(e) => dropCompany(i, e.target.value)}
+                      className="border text-gray-600 px-1 py-1 rounded"
+                    >
+                      <option disabled value="">
+                        Drop ⬇
+                      </option>
+                      {PASS_REASONS.map((r, idx) => (
+                        <option key={idx} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pass List */}
+      {passList.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-gray-700">📁 Passed List</h3>
+          <div className="overflow-x-auto bg-white rounded-xl shadow border">
+            <table className="min-w-full table-auto text-sm">
+              <thead className="bg-gray-50 border-b text-gray-600 text-left">
+                <tr>
+                  <th className="px-4 py-2">Company</th>
+                  <th className="px-4 py-2">Reason</th>
+                  <th className="px-4 py-2">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {passList.map((p, i) => (
+                  <tr key={i} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 border-b">{p.name}</td>
+                    <td className="px-4 py-2 border-b">{p.reason}</td>
+                    <td className="px-4 py-2 border-b">{p.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
