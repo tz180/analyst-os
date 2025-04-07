@@ -15,7 +15,6 @@ const Dashboard = () => {
 
   if (!hasMounted) return null;
 
-  // Filter wins from the past 7 days
   const now = new Date();
   const oneWeekAgo = new Date(now);
   oneWeekAgo.setDate(now.getDate() - 7);
@@ -26,14 +25,14 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="bg-white border shadow-md rounded-xl p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">📋 Dashboard</h2>
+    <div className="space-y-6">
+      <h2 className="text-3xl font-bold text-gray-900">📋 Dashboard</h2>
 
       {/* Today’s Plan */}
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-700">🗓 Today’s Plan</h3>
+      <div className="bg-white rounded-xl shadow p-6 space-y-2 border">
+        <h3 className="text-xl font-semibold text-gray-800">📝 Today’s Plan</h3>
         <textarea
-          className="w-full border rounded p-3"
+          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={3}
           placeholder="What’s the most important work to push forward today?"
           value={todayPlan}
@@ -42,10 +41,10 @@ const Dashboard = () => {
       </div>
 
       {/* Weekly Goals */}
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-700">🎯 Weekly Goals</h3>
+      <div className="bg-white rounded-xl shadow p-6 space-y-2 border">
+        <h3 className="text-xl font-semibold text-gray-800">🎯 Weekly Goals</h3>
         <textarea
-          className="w-full border rounded p-3"
+          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={3}
           placeholder="What will you feel great about completing this week?"
           value={weekGoals}
@@ -54,23 +53,31 @@ const Dashboard = () => {
       </div>
 
       {/* Weekly Momentum */}
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-700">📈 Weekly Momentum</h3>
+      <div className="bg-white rounded-xl shadow p-6 space-y-2 border">
+        <h3 className="text-xl font-semibold text-gray-800">📈 Weekly Momentum</h3>
+
         {weeklyWins.length === 0 ? (
-          <p className="text-gray-500 italic">No wins logged yet this week. You got this.</p>
+          <p className="text-gray-500 italic">No wins logged yet this week. Let’s get it.</p>
         ) : (
-          <ul className="list-disc ml-6 space-y-1 text-sm text-gray-800">
+          <ul className="list-disc ml-6 space-y-1 text-gray-700 text-sm">
             {weeklyWins.map((entry, i) => (
               <li key={i}>
                 <span className="font-medium">
-                  {new Date(entry.date).toLocaleDateString()}:
+                  {new Date(entry.date).toLocaleDateString(undefined, {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                  :
                 </span>{' '}
                 {entry.summary}
               </li>
             ))}
           </ul>
         )}
-        <div className="text-sm text-gray-600 pt-2">
+
+        <div className="pt-2 text-sm text-gray-600">
           ✅ <strong>{weeklyWins.length}</strong> wins this week
         </div>
       </div>
