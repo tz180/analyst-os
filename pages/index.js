@@ -6,8 +6,6 @@ import MemoTracker from '../components/MemoTracker';
 import MomentumLog from '../components/MomentumLog';
 
 
-
-
 export default function Home() {
   return (
     <main className="p-4 space-y-8">
